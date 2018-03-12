@@ -1,0 +1,55 @@
+version: '2'
+
+services:
+  nginx-proxy:
+    image: jwilder/nginx-proxy
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - html:/usr/share/nginx/html
+      - vhostd:/etc/nginx/vhost.d
+      - certs:/etc/nginx/certs
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+    environment:
+      DEFAULT_HOST: muchrm.me
+    labels:
+      - "com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy=true"
+
+  nginx-letsencrypt:
+    image: jrcs/letsencrypt-nginx-proxy-companion
+    volumes:
+      - html:/usr/share/nginx/html
+      - vhostd:/etc/nginx/vhost.d
+      - certs:/etc/nginx/certs
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    depends_on:
+      - nginx-proxy
+
+  nginx:
+    image: nginx
+    environment:
+      - VIRTUAL_HOST=muchrm.me
+      - LETSENCRYPT_HOST=muchrm.me
+      - LETSENCRYPT_EMAIL=muchrm.me@gmail.com
+    volumes:
+      - ./public:/usr/share/nginx/html:ro
+    depends_on:
+      - nginx-proxy
+      - nginx-letsencrypt
+
+  php:
+    image: muchrm/nginx-php71
+    environment:
+      - VIRTUAL_HOST=api.muchrm.me
+      - LETSENCRYPT_HOST=api.muchrm.me
+      - LETSENCRYPT_EMAIL=muchrm.me@gmail.com
+    volumes:
+      - ./api:/var/www/html/public/
+    depends_on:
+      - nginx-proxy
+      - nginx-letsencrypt
+volumes:
+  vhostd:
+  certs:
+  html:
