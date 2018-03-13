@@ -30,7 +30,7 @@ services:
     image: nginx
     environment:
       - VIRTUAL_HOST=muchrm.me
-      - LETSENCRYPT_HOST=muchrm.me
+      - LETSENCRYPT_HOST=muchrm.me,*.muchrm.me
       - LETSENCRYPT_EMAIL=muchrm.me@gmail.com
     volumes:
       - ./public:/usr/share/nginx/html:ro
@@ -42,7 +42,7 @@ services:
     image: muchrm/nginx-php71
     environment:
       - VIRTUAL_HOST=api.muchrm.me
-      - LETSENCRYPT_HOST=api.muchrm.me
+      - LETSENCRYPT_HOST=muchrm.me,*.muchrm.me
       - LETSENCRYPT_EMAIL=muchrm.me@gmail.com
     volumes:
       - ./api:/var/www/html/public/
